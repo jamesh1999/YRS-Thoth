@@ -64,12 +64,12 @@ def nameSearch(words):
 def punctuationSearch(words):
 	words[0][0] = 1
 
-	for i,word in enumerate(words):
+	for count,word in enumerate(words):
 
 		if word[0]==0 or word[0]==2:
 			
-			if words[i-1][1][-1] in ['.','!','?'] or (words[i-1][1][-1]=='"' and words[i-1][1][-2] in ['.','!','?']):
-				words[i][0] = 1
+			if words[count-1][1][-1] in ['.','!','?'] or (words[count-1][1][-1]=='"' and words[count-1][1][-2] in ['.','!','?']):
+				words[count][0] = 1
 
 
 #Searches local database for instances of the word
