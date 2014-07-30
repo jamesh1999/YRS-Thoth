@@ -1,5 +1,6 @@
 #IMPORTS
 import os.path,sqlite3,sys
+import spellcheck
 
 
 
@@ -64,7 +65,9 @@ def punctuationSearch(words):
 	words[0][0] = 1
 
 	for i,word in enumerate(words):
+
 		if word[0]==0 or word[0]==2:
+			
 			if words[i-1][1][-1] in ['.','!','?'] or (words[i-1][1][-1]=='"' and words[i-1][1][-2] in ['.','!','?']):
 				words[i][0] = 1
 
@@ -82,19 +85,38 @@ def localDictSearch(words):
 
 		if word[0]==2:
 
-			try:
-				CURSOR.execute('select data from dictionary where key=?', (word[1],))
-				for i in CURSOR:
-					correct = i[0]
-					break;
+			found=False #Used to tell if word was found in dictionary
 
-				if correct.islower(): #Dictionary returns proper nouns that match the word
+			CURSOR.execute('select data from dictionary where key=?', (word[1],))
+
+			for i in CURSOR:
+
+				found=True
+
+				if i[0].islower(): #Dictionary returns proper nouns that match the word
 					words[count][0] = 0 #Not a proper noun
 				else:
 					words[count][0] = 1 #Proper noun
 
-			except UnboundLocalError:
-				pass
+				break;
+
+			if not found:
+
+				word_new = spellcheck.correct(word[1]) #Spellcheck the word
+
+				CURSOR.execute('select data from dictionary where key=?', (word_new,))
+
+				for i in CURSOR:
+
+					if i[0].islower(): #Dictionary returns proper nouns that match the word
+						words[count][0] = 0 #Not a proper noun
+					else:
+						words[count][0] = 1 #Proper noun
+
+					punc=words[count][1].partition(word[1]) #Add punctuation to new word
+					words[count][1] = punc[0]+word_new+punc[2] #"
+
+					break;
 
 
 #Calls all of the steps required to capitalise the text
@@ -132,6 +154,11 @@ def webFilter(text):
 	return corrected
 
 
+
+
+#----MAIN----#
+
+spellcheck.init() #Initialize the spellcheck .json file
 
 #Handle any unexpected exceptions
 try:
