@@ -302,7 +302,7 @@
 "utfse": "use the f***ing search engine",
 "ugo": "you got owned",
 "urs": "you really suck",
-"w00t": "first two express exuberance",
+"w00t": "we own the other team",
 "woot": "we own the other team",
 "w/": "with",
 "w/": "without",
