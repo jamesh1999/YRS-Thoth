@@ -86,7 +86,7 @@ def localDictSearch(words):
 
 		if word=="": #As this is the first step of the filter we have to check for words with no letters
 
-			CURSOR.execute('select data from dictionary where key=?', (word_old[1],)) #Checks for emoticons
+			CURSOR.execute('select data from slang where key=?', (word_old[1],)) #Checks for emoticons
 
 			for i in CURSOR:
 				words[count][1]=i[0]
@@ -114,13 +114,14 @@ def localDictSearch(words):
 
 			if not found: #First check if it is an abbreviation/internet slang
 
-				CURSOR.execute('select data from slang where key=?', (word_old[1],))
+				CURSOR.execute('select data from slang where key=?', (word[1],))
 
 				for i in CURSOR:
 
 					found=True
 
-					words[count][1]=i[0] #Replace word with translation
+					punc=words[count][1].partition(word[1]) #Add punctuation to new word
+					words[count][1] = punc[0]+i[0]+punc[2] #Replace word with translation
 					words[count][0] = 0 #Guarantees that it is ignored in future except for punctuation
 
 					break;
