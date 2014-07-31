@@ -26,6 +26,7 @@ abbreviations_list={
 "im":"i'm",
 "hes":"he's",
 "shes":"she's",
+"itll":"it'll",
 
 "Srsly":"seriously",
 

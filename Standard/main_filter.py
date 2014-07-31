@@ -169,15 +169,15 @@ def webFilter(text):
 	#nameSearch(words) All names from census data are covered by SCOWL
 
 	#Merge list and capitalise words
-	corrected=""
+	new=""
 
 	for word in words:
 		if word[0]==1:
-			corrected+=word[1].capitalize()+" "
+			new+=word[1].capitalize()+" "
 		else:
-			corrected+=word[1]+" "
+			new+=word[1]+" "
 
-	return corrected
+	return new
 
 
 
