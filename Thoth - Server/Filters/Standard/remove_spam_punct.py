@@ -24,11 +24,9 @@ def removeRepetativePunct(text):
 #Handle any unexpected exceptions
 try:
 
-	#Main loop reads and writes to standard io
-	while True:
-		line = sys.stdin.readline()
-		sys.stdout.write(removeRepetativePunct(line))
-		print("")  #<-- Uncomment to view output
+	line = sys.stdin.readline()
+	sys.stdout.write(removeRepetativePunct(line))
+	#print("")  #<-- Uncomment to view output
 
 except:
 	#Close database cursor if there is an unexpected exception

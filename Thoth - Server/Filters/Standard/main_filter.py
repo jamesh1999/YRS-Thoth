@@ -64,7 +64,10 @@ def nameSearch(words):
 #Capitalises words at start of sentence
 #TODO: different cases involving speech
 def punctuationSearch(words):
-	words[0][0] = 1
+	try:
+		words[0][0] = 1
+	except IndexError: #For lists with no words
+		pass
 
 	for count,word in enumerate(words):
 
@@ -188,12 +191,9 @@ spellcheck.init() #Initialize the spellcheck .json file
 
 #Handle any unexpected exceptions
 try:
-
-	#Main loop reads and writes to standard io
-	while True:
-		line = sys.stdin.readline()
-		sys.stdout.write(webFilter(line))
-		print("")  #<-- Uncomment to view output
+	line = sys.stdin.readline()
+	sys.stdout.write(webFilter(line))
+	#print("")  #<-- Uncomment to view output
 
 except:
 	#Close database cursor if there is an unexpected exception
