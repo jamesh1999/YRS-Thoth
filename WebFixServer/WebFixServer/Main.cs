@@ -22,7 +22,7 @@ namespace WebFixServer
 			Filter filter = new Filter();
 			FleckLog.Level = LogLevel.Debug; //Set websockets to print debugging messages
 			
-            var server = new WebSocketServer("ws://0.0.0.0:8181");  //initialise websocket server on localhost
+            var server = new WebSocketServer("ws://127.0.0.1:8181");  //initialise websocket server on localhost
            
 			server.Start(socket =>
                 {
