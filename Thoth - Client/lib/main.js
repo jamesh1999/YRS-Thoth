@@ -15,7 +15,7 @@ pageMod.PageMod({
 
 var button = buttons.ActionButton({
   id: "filter",
-  label: "Universal Web Translator for Grammar Nazis - Off",
+  label: "Thoth - Off",
   icon: {
     "16": "./icon-16(off).png",
     "32": "./icon-32(off).png",
@@ -37,7 +37,7 @@ function changeIcon()
 {
 	if(On)
 	{
-		button.label = "Universal Web Translator for Grammar Nazis - On";
+		button.label = "Thoth - On";
 		button.icon = {
 		    "16": "./icon-16.png",
 		    "32": "./icon-32.png",
@@ -47,7 +47,7 @@ function changeIcon()
 	}
 	else
 	{
-		button.label = "Universal Web Translator for Grammar Nazis - Off";
+		button.label = "Thoth - Off";
 		button.icon = {
 		    "16": "./icon-16(off).png",
 		    "32": "./icon-32(off).png",
