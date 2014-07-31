@@ -1,0 +1,2 @@
+python db.py
+pause

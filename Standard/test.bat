@@ -1,2 +1,2 @@
-python capitalisation.py
+python main_filter.py
 pause
