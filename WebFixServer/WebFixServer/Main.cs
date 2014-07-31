@@ -74,7 +74,11 @@ namespace WebFixServer
 				{
 					try
 					{
-						AddScript(File.ReadAllText(file));
+						string location = File.ReadAllText(file);
+						location = location.Replace("\n","");//remove automatically added '\n'
+						if(!File.Exists(location))
+							throw new FileNotFoundException("Could not find :" + location);
+						AddScript(location);
 					}
 					catch(Exception e)
 					{
@@ -110,8 +114,7 @@ namespace WebFixServer
 					string plaintext = segment.Substring(0,segment.IndexOf('<')); //retrieve the plaintext before the htmltag
 					if(!string.IsNullOrWhiteSpace(plaintext))//check it isn't empty
 					{
-						plaintext = Filtered(plaintext);
-						
+						plaintext = Filtered(plaintext); //Filter text
 					}
 					text = text.Remove(segmentIndex,segment.Length);
 					text = text.Insert(segmentIndex,plaintext+ segment.Substring(segment.IndexOf('<'))); //replace with altered version
@@ -127,7 +130,7 @@ namespace WebFixServer
 			{
 				try
 				{
-				Process p =  Process.Start(script);
+				Process p =  Process.Start(script);//Run each script and allow it to alter text
 				p.StandardInput.Write(text);
 				text = p.StandardOutput.ReadToEnd();
 				}
@@ -144,13 +147,14 @@ namespace WebFixServer
 		}
 		void AddScript(string location)
 		{
+			FileInfo fileinfo = new FileInfo(location); 
 			
-			ProcessStartInfo info = new ProcessStartInfo("python3.3",location);
-					info.WorkingDirectory = Directory.GetCurrentDirectory();
-					info.RedirectStandardInput = true;
-					info.RedirectStandardOutput = true;
-					info.UseShellExecute = false;
-					scripts.Add (info);
+			ProcessStartInfo info = new ProcessStartInfo("python3.3",fileinfo.Name);
+			info.WorkingDirectory = fileinfo.DirectoryName;
+			info.RedirectStandardInput = true;
+			info.RedirectStandardOutput = true;
+			info.UseShellExecute = false;
+			scripts.Add (info); //Add information to start script process in its directory
 			
 		}
 			       
