@@ -8,16 +8,17 @@
 "u're":"you're",
 "r":"are",
 
-"fuck":f***""
-"fukk":"f***"
-"shit":"s***"
+"fuck":"****",
+"fukk":"****",
+"fuk":"****",
+"shit":"****",
 
 
 "youre": "you're",
 "theyre":"they're",
 "im":"i'm",
-"hes":"he's"
-"shes":"she's"
+"hes":"he's",
+"shes":"she's",
 
 "Srsly":"seriously",
 
@@ -39,18 +40,18 @@
 "ikr":"i do know",
 "fb":"facebook",
 
-"xd":"[Happy face]"
-"xp":"[sticking out tongue face]"
-"x)":"[Happy face]"
-"x(":"[unhappy face"
-":p":"[sticking out tongue face]"
-":d":"[happy face]"
-":)":"[smiley face]"
-":(":"[unhappy face]"
-";p":"[winking sticking out tongue face]"
-";d":"[winking happy face]"
-";)":"[winking face]"
-";(":"[winking unhappy face]"
+"xd":"[Happy face]",
+"xp":"[sticking out tongue face]",
+"x)":"[Happy face]",
+"x(":"[unhappy face",
+":p":"[sticking out tongue face]",
+":d":"[happy face]",
+":)":"[smiley face]",
+":(":"[unhappy face]",
+";p":"[winking sticking out tongue face]",
+";d":"[winking happy face]",
+";)":"[winking face]",
+";(":"[winking unhappy face]",
 
 
 "obvs":"obvious",
@@ -97,13 +98,14 @@
 "diaf": "die in a fire",
 "dilligaf": "does it look like i give a flip",
 "d/l": "download",
+"dl": "download",
 "dnd": "do not disturb",
 "doa": "dead on arrival",
 "eof": "end of file",
 "eom": "end of message",
 "eol": "end of life",
 "eq": "everquest",
-"esad": "eat shit and die",
+"esad": "eat **** and die",
 "eta": "estimated time of arrival",
 "f9": "fine",
 "faq": "frequently asked question(s)",
@@ -117,7 +119,7 @@
 "ftw": "for the win",
 "ftw": "fuck the what",
 "fu": "fuck you",
-"fubar": "f***ed up beyond all recognition",
+"fubar": "****ed up beyond all recognition",
 "fud": "fear, uncertainty and doubt ",
 "fwiw": "for what it's worth",
 "fyi": "for your information",
@@ -173,7 +175,7 @@
 "lfm": "looking for more",
 "lmao": "laughing my ass off",
 "lmbo": "laughing my butt off",
-"lmfao": "laughing my f***ing ass off",
+"lmfao": "laughing my ****ing ass off",
 "lmgtfy": "let me google that for you",
 "lmirl": "let's meet in real life",
 "lmk": "let me know",
@@ -212,8 +214,8 @@
 "oic": "oh, i see",
 "ofn": "old freaking news",
 "omg": "oh my god",
-"omfg": "oh my f***ing god",
-"omgwtf": "oh my god what the f***",
+"omfg": "oh my ****ing god",
+"omgwtf": "oh my god what the ****",
 "omw": "on my way ",
 "onoz": "oh, no",
 "op": "original poster",
@@ -249,9 +251,9 @@
 "roflol": "rolling on the floor laughing out loud",
 "rotflol": "rolling on the floor laughing out loud",
 "rsn": "real soon now",
-"rtfb": "read the f***ing binary",
-"rtfs": "read the f***ing source",
-"rtfm": "read the f***ing manual",
+"rtfb": "read the ****ing binary",
+"rtfs": "read the ****ing source",
+"rtfm": "read the ****ing manual",
 "rtm": "read the manual or reboot the machine",
 "scnr": "sorry, could not resist",
 "sfw": "safe for work",
@@ -264,8 +266,8 @@
 "sohf": "sense of humor failure",
 "sos": "there is someone watching over my shoulder",
 "stahp ": "stop",
-"stfu": "shut the f*** up",
-"stfw": "search the f***ing web",
+"stfu": "shut the **** up",
+"stfw": "search the ****ing web",
 "tanstaafl": "there ain't no such thing as a free lunch",
 "tbf": "time between failures",
 "tbh": "to be honest",
@@ -299,7 +301,7 @@
 "tyt": "take your time",
 "tyvm": "thank you very much",
 "u": "you",
-"utfse": "use the f***ing search engine",
+"utfse": "use the ****ing search engine",
 "ugo": "you got owned",
 "urs": "you really suck",
 "w00t": "we own the other team",
