@@ -15,6 +15,7 @@ namespace WebFixServer
 		{
 			
 			Filter filter = new Filter();
+			filter.Run("LOL");
 			FleckLog.Level = LogLevel.Debug; //Set websockets to print debugging messages
 			
             var server = new WebSocketServer("ws://127.0.0.1:8181");  //Initialise websocket server on localhost
@@ -89,7 +90,7 @@ namespace WebFixServer
 		public string Run(string text)
 		{
 			List<Thread> threads = new List<Thread>();
-			SortedList<string replacements = new Dictionary<string,string>();
+			SortedList<int,Replacement> replacements = new SortedList<int,Replacement>();
 			string[] segments = text.Split('>'); //Split text by closing html tag
 
 			for(int i = 1;i< segments.Length;i++) //Start at 1 to remove first html tag
@@ -103,10 +104,16 @@ namespace WebFixServer
 					string plaintext = segment.Substring(0,segment.IndexOf('<')); //Retrieve the plaintext before the htmltag
 					if(!string.IsNullOrWhiteSpace(plaintext)) //Check it isn't empty
 					{
-						Thread t = new Thread(new ThreadStart(()=>{	Filtered(plaintext,replacements,segment.Substring(segment.IndexOf('<')));}));
+						Replacement r = new Replacement();
+						r.index = segmentIndex;
+						r.length = segment.Length;
+						r.tail = segment.Substring(segment.IndexOf('<'));
+						r.i = i;
+						r.original = plaintext;
+						Thread t = new Thread(new ThreadStart(()=>{	Filtered(r,replacements);}));
 							threads.Add(t);
 							
-                        Filtered(plaintext); //Filter text
+                        Filtered(r); //Filter text
                         
                         
 					}
@@ -114,15 +121,11 @@ namespace WebFixServer
 			}
 			foreach(Thread t in threads)
 				t.Join();
-			foreach(KeyValuePair<string,string> replacement in replacements)
-			{
-				
-				text = text.Remove(segmentIndex,segment.Length);
-				text = text.Insert(segmentIndex,plaintext); //Replace with altered version
-			
-				
-				
-				
+			foreach(Replacement r in replacements.Values)
+			{				
+				text = text.Remove(r.index,r.length);
+				text = text.Insert(r.index,r.replacement); //Replace with altered version				
+				Console.WriteLine(r.i +") " + r.original + " >>> " + r.replacement); 
 			}
 			
 			
@@ -131,9 +134,9 @@ namespace WebFixServer
 
 
         //Runs "text" through all filters
-		public void Filtered(string plaintext,Dictionary<string,string> replacements,string end)
+		public void Filtered(Replacement r, SortedList<int,Replacement> replacements )
 		{
-			string text = plaintext;
+			string text = r.original;
 			
 			foreach(ProcessStartInfo script in scripts)
 			{
@@ -149,8 +152,9 @@ namespace WebFixServer
 				}
 				
 			}
-			Console.WriteLine(plaintext + " >> " + text); 
-			replacements.Add(plaintext,text+end);
+			Console.WriteLine(+"  " + r.original + " >> " + r.replacement+ " queued at: "+ r.i );
+			r.replacement = text;
+			replacements.Add(r.i,r);
 			
 		}
 
@@ -168,7 +172,19 @@ namespace WebFixServer
 			
 		}
 		
+		
 	}
+	public struct Replacement
+	{
+		public int index;
+		public int length;
+		public string replacement;
+		public string tail;
+		public string original;
+		public int i;
+		
+	}
+		
 
 }
 		
