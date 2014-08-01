@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Diagnostics;
+using System.Threading;
 
 namespace WebFixServer
 {
@@ -43,6 +44,7 @@ namespace WebFixServer
 	class Filter
 	{
 		List<ProcessStartInfo> scripts = new List<ProcessStartInfo>();
+		
 		
 		public Filter()
 		{
@@ -86,7 +88,8 @@ namespace WebFixServer
         //Separates plaintext from html and runs it through filters before adding it back in
 		public string Run(string text)
 		{
-			
+			List<Thread> threads = new List<Thread>();
+			SortedList<string replacements = new Dictionary<string,string>();
 			string[] segments = text.Split('>'); //Split text by closing html tag
 
 			for(int i = 1;i< segments.Length;i++) //Start at 1 to remove first html tag
@@ -100,22 +103,37 @@ namespace WebFixServer
 					string plaintext = segment.Substring(0,segment.IndexOf('<')); //Retrieve the plaintext before the htmltag
 					if(!string.IsNullOrWhiteSpace(plaintext)) //Check it isn't empty
 					{
-                        string filtered =  Filtered(plaintext); //Filter text
-                        Console.WriteLine(plaintext + " >> " + filtered); 
-                        plaintext = filtered;
+						Thread t = new Thread(new ThreadStart(()=>{	Filtered(plaintext,replacements,segment.Substring(segment.IndexOf('<')));}));
+							threads.Add(t);
+							
+                        Filtered(plaintext); //Filter text
+                        
+                        
 					}
-					text = text.Remove(segmentIndex,segment.Length);
-					text = text.Insert(segmentIndex,plaintext+ segment.Substring(segment.IndexOf('<'))); //Replace with altered version
 				}
 			}
+			foreach(Thread t in threads)
+				t.Join();
+			foreach(KeyValuePair<string,string> replacement in replacements)
+			{
+				
+				text = text.Remove(segmentIndex,segment.Length);
+				text = text.Insert(segmentIndex,plaintext); //Replace with altered version
+			
+				
+				
+				
+			}
+			
+			
 			return text;
 		}
 
 
         //Runs "text" through all filters
-		public string Filtered(string text)
+		public void Filtered(string plaintext,Dictionary<string,string> replacements,string end)
 		{
-			
+			string text = plaintext;
 			
 			foreach(ProcessStartInfo script in scripts)
 			{
@@ -131,7 +149,8 @@ namespace WebFixServer
 				}
 				
 			}
-			return text;
+			Console.WriteLine(plaintext + " >> " + text); 
+			replacements.Add(plaintext,text+end);
 			
 		}
 

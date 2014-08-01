@@ -33,10 +33,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Fleck">
-      <HintPath>bin\Debug\Fleck.dll</HintPath>
+      <HintPath>..\..\Thoth - Server\Fleck.dll</HintPath>
     </Reference>
     <Reference Include="HtmlAgilityPack">
-      <HintPath>bin\Debug\HtmlAgilityPack.dll</HintPath>
+      <HintPath>..\..\Thoth - Server\HtmlAgilityPack.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
