@@ -7,14 +7,19 @@ import sys
 def removeRepetativePunct(text):
 	start=0
 	erase=False
+
 	for count,char in enumerate(text):
+
 		if char in ['.','!','?']:
-			if not erase:
+
+			if not erase: #Start selecting texxt to be erased
 				erase=True
 				start=count
-		elif erase:
+
+		elif erase: #Erase selected punctuation except for the first one
 			erase=False
 			text=text[:start+1]+text[count:]
+
 	return text
 
 
@@ -25,12 +30,14 @@ def removeRepetativePunct(text):
 try:
 
 	line = sys.stdin.readline()
-	sys.stdout.write(removeRepetativePunct(line))
+	sys.stdout.write(webFilter(line))
 	#print("")  #<-- Uncomment to view output
 
 except:
-	#Close database cursor if there is an unexpected exception
-	CURSOR.close()
 
 	print("\nUnexpected error:\n",sys.exc_info()[0],"\n")
 	raise
+
+finally:
+	#Close database cursor if there is an unexpected exception
+	CURSOR.close()

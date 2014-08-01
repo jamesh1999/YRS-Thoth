@@ -23,14 +23,16 @@ def removeRepetativePunct(text):
 
 #Handle any unexpected exceptions
 try:
-
 	line = sys.stdin.readline()
-	sys.stdout.write(removeRepetativePunct(line))
+	sys.stdout.write(webFilter(line))
+	sys.stdout.close()
 	#print("")  #<-- Uncomment to view output
 
 except:
-	#Close database cursor if there is an unexpected exception
-	CURSOR.close()
 
 	print("\nUnexpected error:\n",sys.exc_info()[0],"\n")
 	raise
+
+finally:
+	#Close database cursor if there is an unexpected exception
+	CURSOR.close()

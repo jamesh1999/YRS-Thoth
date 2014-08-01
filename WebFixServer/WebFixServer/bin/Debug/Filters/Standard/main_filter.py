@@ -37,7 +37,7 @@ def removePunctuation(word_old):
 
 		return word
 
-	except IndexError: #Error thrown if the word contains no letters
+	except IndexError: #Error raised if the word contains no letters
 		return ""
 
 
@@ -92,13 +92,13 @@ def localDictSearch(words):
 			CURSOR.execute('select data from slang where key=?', (word_old[1],)) #Checks for emoticons
 
 			for i in CURSOR:
-				words[count][1]=i[0]
+				words[count][1]=i[0] #Set the word to be the first match in dictionary
 				break;
 
 			words[count][0] = 0 #Guarantees that letterless words/emoticons are ignored in future except for punctuation
 			continue;
 
-		if word[0]==2:
+		elif word[0]==2:
 
 			found=False #Used to tell if word was found in dictionary
 
@@ -191,9 +191,9 @@ spellcheck.init() #Initialize the spellcheck .json file
 
 #Handle any unexpected exceptions
 try:
+
 	line = sys.stdin.readline()
 	sys.stdout.write(webFilter(line))
-	sys.stdout.close()
 	#print("")  #<-- Uncomment to view output
 
 except:
