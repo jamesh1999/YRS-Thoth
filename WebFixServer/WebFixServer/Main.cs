@@ -97,7 +97,7 @@ namespace WebFixServer
 				string segment = segments[i];
 
 
-				if(segment.Contains('<')&&(!(segment.EndsWith("script")||segment.EndsWith("code")))) //Ensure the section contains an opening html tag and does not end with the tag <script> or <code>
+				if(segment.Contains('<')&&(!(segment.EndsWith("script")||segment.EndsWith("code")||segment.EndsWith("style")||segment.EndsWith("div")))) //Ensure the section contains an opening html tag and does not end with the tag <script> or <code>
 				{
 					string plaintext = segment.Substring(0,segment.IndexOf('<')); //Retrieve the plaintext before the htmltag
 					if(!string.IsNullOrWhiteSpace(plaintext)) //Check it isn't empty
@@ -126,7 +126,7 @@ namespace WebFixServer
 			foreach(Replacement r in replacements.Values)
 			{				
                 int index = text.IndexOf(r.original);
-				text = text.Remove(index,r.length);
+				text = text.Remove(index-1,r.length);
 				text = text.Insert(index,r.replacement); //Replace with altered version				
 				Console.WriteLine(r.i +") " + r.original + " >>> " + r.replacement); 
 			}
