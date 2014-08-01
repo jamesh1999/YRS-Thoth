@@ -100,7 +100,9 @@ namespace WebFixServer
 					string plaintext = segment.Substring(0,segment.IndexOf('<')); //Retrieve the plaintext before the htmltag
 					if(!string.IsNullOrWhiteSpace(plaintext)) //Check it isn't empty
 					{
-						plaintext = Filtered(plaintext); //Filter text
+                        string filtered =  Filtered(plaintext); //Filter text
+                        Console.WriteLine(plaintext + " >> " + filtered); 
+                        plaintext = filtered;
 					}
 					text = text.Remove(segmentIndex,segment.Length);
 					text = text.Insert(segmentIndex,plaintext+ segment.Substring(segment.IndexOf('<'))); //Replace with altered version

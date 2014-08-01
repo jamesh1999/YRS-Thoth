@@ -5,3 +5,6 @@ E:\My Documents\GitHub\YRS\WebFixServer\WebFixServer\obj\x86\Debug\WebFixServer.
 E:\My Documents\GitHub\YRS\WebFixServer\WebFixServer\obj\x86\Debug\WebFixServer.pdb
 C:\Users\James\Documents\GitHub\YRS\WebFixServer\WebFixServer\obj\x86\Debug\WebFixServer.exe
 C:\Users\James\Documents\GitHub\YRS\WebFixServer\WebFixServer\obj\x86\Debug\WebFixServer.pdb
+C:\Users\James\Documents\GitHub\YRS\WebFixServer\WebFixServer\bin\Debug\WebFixServer.exe
+C:\Users\James\Documents\GitHub\YRS\WebFixServer\WebFixServer\bin\Debug\WebFixServer.pdb
+C:\Users\James\Documents\GitHub\YRS\WebFixServer\WebFixServer\obj\x86\Debug\WebFixServer.csprojResolveAssemblyReference.cache
