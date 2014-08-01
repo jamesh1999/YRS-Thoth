@@ -15,7 +15,6 @@ namespace WebFixServer
 		{
 			
 			Filter filter = new Filter();
-			filter.Run("LOL");
 			FleckLog.Level = LogLevel.Debug; //Set websockets to print debugging messages
 			
             var server = new WebSocketServer("ws://127.0.0.1:8181");  //Initialise websocket server on localhost
@@ -97,34 +96,38 @@ namespace WebFixServer
 			{
 				string segment = segments[i];
 
-				int segmentIndex = text.IndexOf(segment);
 
 				if(segment.Contains('<')&&(!(segment.EndsWith("script")||segment.EndsWith("code")))) //Ensure the section contains an opening html tag and does not end with the tag <script> or <code>
 				{
 					string plaintext = segment.Substring(0,segment.IndexOf('<')); //Retrieve the plaintext before the htmltag
 					if(!string.IsNullOrWhiteSpace(plaintext)) //Check it isn't empty
 					{
-						Replacement r = new Replacement();
-						r.index = segmentIndex;
-						r.length = segment.Length;
-						r.tail = segment.Substring(segment.IndexOf('<'));
-						r.i = i;
-						r.original = plaintext;
-						Thread t = new Thread(new ThreadStart(()=>{	Filtered(r,replacements);}));
-							threads.Add(t);
-							
-                        Filtered(r); //Filter text
+                        if (plaintext.Trim().Length > 19) //(Speed issues)
+                        {
+                            Replacement r = new Replacement();
+                            r.length = segment.Length;
+                            r.tail = segment.Substring(segment.IndexOf('<'));
+                            r.i = i;
+                            r.original = plaintext;
+                            Thread t = new Thread(new ThreadStart(() => { Filtered(r, replacements); }));
+                            t.Start();
+                            threads.Add(t);
+                        }
                         
                         
 					}
 				}
 			}
-			foreach(Thread t in threads)
-				t.Join();
+            foreach(Thread t in threads)
+                if (t.IsAlive)
+                {
+                    t.Join();
+                }
 			foreach(Replacement r in replacements.Values)
 			{				
-				text = text.Remove(r.index,r.length);
-				text = text.Insert(r.index,r.replacement); //Replace with altered version				
+                int index = text.IndexOf(r.original);
+				text = text.Remove(index,r.length);
+				text = text.Insert(index,r.replacement); //Replace with altered version				
 				Console.WriteLine(r.i +") " + r.original + " >>> " + r.replacement); 
 			}
 			
@@ -152,8 +155,9 @@ namespace WebFixServer
 				}
 				
 			}
-			Console.WriteLine(+"  " + r.original + " >> " + r.replacement+ " queued at: "+ r.i );
-			r.replacement = text;
+            r.replacement = text;
+			Console.WriteLine("  " + r.original + " >> " + r.replacement+ " queued at: "+ r.i );
+			
 			replacements.Add(r.i,r);
 			
 		}
@@ -176,7 +180,6 @@ namespace WebFixServer
 	}
 	public struct Replacement
 	{
-		public int index;
 		public int length;
 		public string replacement;
 		public string tail;

@@ -316,6 +316,8 @@ abbreviations_list={
 "woot": "we own the other team",
 "w/": "with",
 "w/": "without",
+"wat":"what",
+"wats":"what is",
 "wb": "welcome back",
 "wbu": "what (a)bout you",
 "w/e": "whatever",
