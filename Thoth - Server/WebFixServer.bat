@@ -1,2 +1,0 @@
-WebFixServer.exe
-pause

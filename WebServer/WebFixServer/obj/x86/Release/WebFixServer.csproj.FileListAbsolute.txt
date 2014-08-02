@@ -1,0 +1,1 @@
+C:\Users\James\Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Release\WebFixServer.csprojResolveAssemblyReference.cache
