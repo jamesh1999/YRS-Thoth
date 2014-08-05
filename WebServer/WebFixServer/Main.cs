@@ -6,6 +6,7 @@ using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using HtmlAgilityPack;
 
 
 
@@ -73,7 +74,8 @@ namespace WebFixServer
 					{
 						string location = File.ReadAllText(file); //Read .py location from .script
 						location = location.Replace("\n",""); //Remove newline character
-
+						if(Environment.OSVersion.Platform == System.PlatformID.Unix)
+							location = location.Replace("\\","/");
                         if (!File.Exists(location))
                         {
                             throw new FileNotFoundException("Could not find :" + location);
@@ -94,41 +96,24 @@ namespace WebFixServer
         //Separates plaintext from html and runs it through filters before adding it back in
 		public string Run(string text)
 		{
+			
+			
+			var doc = new HtmlAgilityPack.HtmlDocument();
 			List<Thread> threads = new List<Thread>();
-			SortedList<int,Replacement> replacements = new SortedList<int,Replacement>();
-			string[] segments = text.Split('>'); //Split text by closing html tag
+			doc.LoadHtml(text);
+			foreach (HtmlAgilityPack.HtmlTextNode node in doc.DocumentNode.SelectNodes("//text()[normalize-space(.) != '']"))
+    		{
 
-			for(int i = 1;i< segments.Length;i++) //Start at 1 to ignore first html tag
-			{
-
-				string segment = segments[i];
-
-				if(segment.Contains('<')&&(!(segment.EndsWith("script")||segment.EndsWith("code")||segment.EndsWith("style")))) //Ignore tags that don't contain visible text
+				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>17)
 				{
-					string plaintext = segment.Substring(0,segment.IndexOf('<')); //Retrieve the text until the next html tag
-
-					if(!string.IsNullOrWhiteSpace(plaintext)) //Check that it isn't empty
-					{
-                        if (plaintext.Trim().Length > 19) //Ignore small strings (To improve speed because my laptop is slow)
-                        {
-
-                            //Create replacement with data required to reconstruct html
-                            Replacement r = new Replacement();
-                            r.length = segment.Length;
-                            r.tail = segment.Substring(segment.IndexOf('<'));
-                            r.i = i;
-                            r.original = plaintext;
-
-                            //Start filtering the text in a new thread and add it to the list
-                            Thread t = new Thread(new ThreadStart(() => { Filtered(r, replacements); }));
-                            t.Start();
-                            threads.Add(t);
-                        }
-					}
+					
+					Thread t = new Thread(new ThreadStart(() => { Filtered(node); }));
+	                            t.Start();
+	                            threads.Add(t);
+					
 				}
-			}
-
-            //Rejoin threads with main threads when they are finished
+    		}
+			            //Rejoin threads with main threads when they are finished
             foreach (Thread t in threads)
             {
                 if (t.IsAlive)
@@ -136,44 +121,28 @@ namespace WebFixServer
                     t.Join();
                 }
             }
-
-            //Make changes to html
-			foreach(Replacement r in replacements.Values)
-			{				
-                int index = text.IndexOf(r.original);
-				text = text.Remove(index,r.length); //Remove old version
-				text = text.Insert(index,r.replacement+r.tail); //Replace with altered version	
-				Console.WriteLine(r.i +") " + r.original + " >>> " + r.replacement); //Display change on console for debugging
-			}
 			
-			return text;
+			return doc.DocumentNode.InnerHtml;
 		}
-
-
-        //Runs Replacement "r" through all filters
-		public void Filtered(Replacement r, SortedList<int,Replacement> replacements )
+		public void Filtered(HtmlTextNode node )
 		{
-			string text = r.original;
+			string original = node.Text;
 			
 			foreach(ProcessStartInfo script in scripts)
 			{
 				try
 				{
 				    Process p =  Process.Start(script); //Run each script and allow it to alter text
-				    p.StandardInput.WriteLine(text);
-				    text = p.StandardOutput.ReadToEnd();
+				    p.StandardInput.WriteLine(node.Text);
+				    node.Text = p.StandardOutput.ReadToEnd();
 				}
 				catch(Exception e)
 				{
 					Console.WriteLine(e); //Display any exceptions thrown by scripts
 				}
+				
 			}
-
-            r.replacement = text; //Save replaced text to replacement
-            replacements.Add(r.i, r); //Add replacement to list
-
-			Console.WriteLine("  " + r.original + " >> " + r.replacement+ " queued at: "+ r.i );
-			
+			Console.WriteLine(original + " >> " + node.Text);
 		}
 
 
@@ -181,8 +150,14 @@ namespace WebFixServer
 		void AddScript(string location)
 		{
 			FileInfo fileinfo = new FileInfo(location); 
-			
-			ProcessStartInfo info = new ProcessStartInfo("python.exe",fileinfo.Name);
+			ProcessStartInfo info ;
+			if(Environment.OSVersion.Platform == PlatformID.Unix)
+				
+				info = new ProcessStartInfo("python3.3",fileinfo.Name);
+			else
+			{
+				info = new ProcessStartInfo("python.exe",fileinfo.Name);
+			}
 			info.WorkingDirectory = fileinfo.DirectoryName;
 			info.RedirectStandardInput = true; //Redirect stdio for Python/C# communitcation
 			info.RedirectStandardOutput = true; //"
@@ -192,16 +167,7 @@ namespace WebFixServer
 	}
 
 
-    //Structure for replacement containing all required information to rebuild html
-	public struct Replacement
-	{
-		public int length;
-		public string replacement;
-		public string tail;
-		public string original;
-		public int i;
-	}
-		
+
 
 }
 		

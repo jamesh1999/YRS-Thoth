@@ -35,11 +35,12 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Fleck">
-      <HintPath>..\..\Thoth - Server\Fleck.dll</HintPath>
+      <HintPath>bin\Debug\Fleck.dll</HintPath>
     </Reference>
     <Reference Include="HtmlAgilityPack">
-      <HintPath>..\..\Thoth - Server\HtmlAgilityPack.dll</HintPath>
+      <HintPath>bin\Debug\HtmlAgilityPack.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
