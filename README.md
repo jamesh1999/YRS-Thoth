@@ -10,10 +10,9 @@ Install
   2. Download and install python 3.4.1
   3. From the directory where Python is installed copy python.exe
   4. Paste python.exe into YRS-Thoth/WebServer/bin/Release/
-  5. Next, open Firefox and navigate to the Add-Ons window
-  6. Click the settings inco next to the search bar and select "Install add-on from file"
-  7. Install the file YRS-Thoth/Client/thothproxy.xpi
-  8. Now use Thoth
+  5. Open YRS-Thoth/Client/install.html in firefox and click 'Install Extension'
+  6. Follow on-screen instructions
+  7. Now use Thoth
 
 Usage
 =========
