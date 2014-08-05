@@ -1,7 +1,8 @@
 var data = require("sdk/self").data;
 var pageMod = require("sdk/page-mod");
 var buttons = require('sdk/ui/button/action');
-On = false;
+var pref = require('sdk/simple-prefs').prefs['On'];
+On = pref;
 pageMod.PageMod({
   include: "*",
   contentScriptFile: data.url("coms.js"),
@@ -35,6 +36,7 @@ function handleClick(state) {
 }
 function changeIcon()
 {
+	pref = On
 	if(On)
 	{
 		button.label = "Thoth - On";
@@ -60,3 +62,4 @@ function changeIcon()
 }
 
 
+changeIcon();

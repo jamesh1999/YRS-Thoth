@@ -2,8 +2,17 @@
   "name": "thothproxy",
   "title": "ThothProxy",
   "id": "jid1-4GkBofvNzuAh0Q",
-  "description": "corrects spelling and grammar",
+  "description": "Corrects spelling and grammar.",
   "author": "",
+  "icon": "data/icon-64.png",
   "license": "MPL 2.0",
-  "version": "0.1"
+  "version": "1.0",
+  
+  "preferences": [{
+	"name": "On",
+	"title": "Activated",
+	"description": "Use Project Thoth?",
+	"type": "bool",
+	"value": "true"
+  }]
 }
