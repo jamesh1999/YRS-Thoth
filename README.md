@@ -18,8 +18,3 @@ Usage
 =========
   To use Project Thoth you have to run the webserver (YRS-Thoth/WebServer/bin/Release/WebFixServer.exe). If this is running and the add-on is enabled (by clicking the Thoth icon in the top-right hand corner of the screen so that it turns light-blue), you should be able to navigate to any non-https:// website and Project Thoth will automatically fix both spelling and grammar. On slower machines this may take a while but, in the meantime, the old website will be displayed. Here is a good website on which to test Project Thoth: http://al153.github.io/bad_grammar
 
-To-Do
-=========
--Add an installer
--Compile the standard python scripts
--Fix the javascript bug
