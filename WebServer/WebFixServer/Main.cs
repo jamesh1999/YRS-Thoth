@@ -47,7 +47,7 @@ namespace WebFixServer
 
 	class Filter
 	{
-		List<ProcessStartInfo> scripts = new List<ProcessStartInfo>(); //List containing all loaded scripts
+		List<Script> scripts = new List<Script>(); //List containing all loaded scripts
 		
 		
 		public Filter()
@@ -106,21 +106,44 @@ namespace WebFixServer
 
 				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>17)
 				{
-					
-					Thread t = new Thread(new ThreadStart(() => { Filtered(node); }));
-	                            t.Start();
-	                            threads.Add(t);
-					
+					if(threads.Count<100+Environment.ProcessorCount)
+					{
+					Thread t = null;
+				    t = new Thread(new ThreadStart(() => { Filtered(node);threads.Remove(t); }));
+					if(node.Text.Contains("javascript"))
+						   Console.Write("");
+	                t.Start();
+	                threads.Add(t);
+					}
+					else
+					{
+						Filtered(node);
+						
+						
+					}
 				}
     		}
 			            //Rejoin threads with main threads when they are finished
-            foreach (Thread t in threads)
-            {
-                if (t.IsAlive)
-                {
-                    t.Join();
-                }
-            }
+            while(threads.Count>0)
+			{
+				try
+				{
+					if(threads[0].IsAlive)
+						threads[0].Join();
+					else
+						threads.Remove(threads[0]);
+					
+					
+				}
+				catch(Exception)
+				{
+					
+					
+				}
+				
+				
+				
+			}
 			
 			return doc.DocumentNode.InnerHtml;
 		}
@@ -128,13 +151,12 @@ namespace WebFixServer
 		{
 			string original = node.Text;
 			
-			foreach(ProcessStartInfo script in scripts)
+			foreach(Script script in scripts)
 			{
 				try
-				{
-				    Process p =  Process.Start(script); //Run each script and allow it to alter text
-				    p.StandardInput.WriteLine(node.Text);
-				    node.Text = p.StandardOutput.ReadToEnd();
+				{	
+					node.Text = script.Run(node.Text);
+
 				}
 				catch(Exception e)
 				{
@@ -149,8 +171,33 @@ namespace WebFixServer
         //Prepare a script at "location" for usage
 		void AddScript(string location)
 		{
-			FileInfo fileinfo = new FileInfo(location); 
-			ProcessStartInfo info ;
+			FileInfo info = new FileInfo(location);
+			
+			if(info.Extension == ".py")
+			{
+				PythonScript py = new PythonScript();
+				py.Load(info);
+				scripts.Add(py);
+				
+			}
+			
+		}
+	}
+	public abstract class Script
+	{
+		public abstract string Run(string input);
+		public abstract void Load(FileInfo info);
+		
+		
+		
+		
+	}
+	public class PythonScript : Script
+	{
+		ProcessStartInfo info;
+		
+		public override void Load (FileInfo fileinfo)
+		{
 			if(Environment.OSVersion.Platform == PlatformID.Unix)
 				
 				info = new ProcessStartInfo("python3.3",fileinfo.Name);
@@ -161,9 +208,17 @@ namespace WebFixServer
 			info.WorkingDirectory = fileinfo.DirectoryName;
 			info.RedirectStandardInput = true; //Redirect stdio for Python/C# communitcation
 			info.RedirectStandardOutput = true; //"
-			info.UseShellExecute = false;
-			scripts.Add (info); //Add information to start script process in its directory
+			info.UseShellExecute = false; 
 		}
+		
+		public override string Run (string input)
+		{
+			 Process p =  Process.Start(info); //Run each script and allow it to alter text
+			 p.StandardInput.WriteLine(input);
+			 return p.StandardOutput.ReadToEnd();
+		}
+		
+		
 	}
 
 
