@@ -74,8 +74,10 @@ namespace WebFixServer
 					{
 						string location = File.ReadAllText(file); //Read .py location from .script
 						location = location.Replace("\n",""); //Remove newline character
-						if(Environment.OSVersion.Platform == System.PlatformID.Unix)
+
+						if(Environment.OSVersion.Platform == System.PlatformID.Unix) //Change windows backslashes to forward slashes
 							location = location.Replace("\\","/");
+
                         if (!File.Exists(location))
                         {
                             throw new FileNotFoundException("Could not find :" + location);
@@ -104,7 +106,7 @@ namespace WebFixServer
 			foreach (HtmlAgilityPack.HtmlTextNode node in doc.DocumentNode.SelectNodes("//text()[normalize-space(.) != '']"))
     		{
 
-				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>17)
+				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>15)
 				{
 					
 					Thread t = new Thread(new ThreadStart(() => { Filtered(node); }));

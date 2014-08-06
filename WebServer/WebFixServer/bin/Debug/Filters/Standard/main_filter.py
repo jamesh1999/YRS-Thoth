@@ -163,6 +163,17 @@ def webFilter(text):
 		elif word=="i":
 			words.append([1,word]) #Special case: only single letter word that needs capitalising
 
+		elif not word.isupper(): #If word contains some capitals split along those capitals
+
+			temp=""
+			for letter in word:
+				if letter.isupper() and not temp=="":
+					words.append([2,temp.lower()])
+					temp=""
+				temp+=letter
+
+			words.append([2,temp.lower()])
+
 		else:
 			words.append([2,word.lower()]) #2 denotes that it may or may not need capitalising
 
