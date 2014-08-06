@@ -7,8 +7,11 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using HtmlAgilityPack;
-
-
+using IronPython.Compiler;
+using IronPython.Hosting;
+using Microsoft.Scripting;
+using Microsoft.Scripting.Hosting;
+using System.Runtime.Remoting;
 
 namespace WebFixServer
 {
@@ -24,6 +27,8 @@ namespace WebFixServer
 			
             var server = new WebSocketServer("ws://127.0.0.1:8181");  //Initialise websocket server on localhost
            
+			
+			
             //Start server
 			server.Start(socket =>
                 {
@@ -48,7 +53,7 @@ namespace WebFixServer
 	class Filter
 	{
 		List<Script> scripts = new List<Script>(); //List containing all loaded scripts
-		
+		const int MaxThreads = 100;
 		
 		public Filter()
 		{
@@ -57,8 +62,7 @@ namespace WebFixServer
 			foreach(string file in Directory.GetFiles("Filters"))
 			{						
 						
-				if (file.EndsWith(".py")) //If a file in "Filters" ends in .py add it as a script
-				{
+				
 					try
 					{
 						AddScript(file);
@@ -68,27 +72,8 @@ namespace WebFixServer
 					    Console.WriteLine("Failed to add "+ file); //Display any exceptions
 					    Console.WriteLine(e);
 					}
-				}else if (file.EndsWith(".script")) //If a file in "Filters" ends in .script add the location in the file as a script
-				{
-					try
-					{
-						string location = File.ReadAllText(file); //Read .py location from .script
-						location = location.Replace("\n",""); //Remove newline character
-						if(Environment.OSVersion.Platform == System.PlatformID.Unix)
-							location = location.Replace("\\","/");
-                        if (!File.Exists(location))
-                        {
-                            throw new FileNotFoundException("Could not find :" + location);
-                        }
-
-						AddScript(location);
-					}
-					catch(Exception e)
-					{
-                        Console.WriteLine("Failed to add " + file); //Display any exceptions
-						Console.WriteLine(e);
-					}
-				}
+				
+				
 			}
 		}
 
@@ -106,12 +91,10 @@ namespace WebFixServer
 
 				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>17)
 				{
-					if(threads.Count<100+Environment.ProcessorCount)
+					if(threads.Count<MaxThreads)
 					{
 					Thread t = null;
 				    t = new Thread(new ThreadStart(() => { Filtered(node);threads.Remove(t); }));
-					if(node.Text.Contains("javascript"))
-						   Console.Write("");
 	                t.Start();
 	                threads.Add(t);
 					}
@@ -123,7 +106,7 @@ namespace WebFixServer
 					}
 				}
     		}
-			            //Rejoin threads with main threads when they are finished
+			            //Rejoin threads with threads when they are finished
             while(threads.Count>0)
 			{
 				try
@@ -180,6 +163,38 @@ namespace WebFixServer
 				scripts.Add(py);
 				
 			}
+			if(info.Extension == ".ipy")
+			{
+				IronPythonScript ipy = new IronPythonScript();
+				ipy.Load(info);
+				scripts.Add(ipy);
+				
+			}
+			if(info.Extension == ".script")//If a file in "Filters" ends in .script add the location in the file as a script
+			{
+				try
+				{
+					string newlocation = File.ReadAllText(info.FullName); //Read .py location from .script
+					location = location.Replace("\n",""); //Remove newline character
+					if(Environment.OSVersion.Platform == System.PlatformID.Unix)
+						newlocation = newlocation.Replace("\\","/");
+						
+                    if (!File.Exists(location))
+                    {
+                        throw new FileNotFoundException("Could not find :" + newlocation);
+                    }
+
+					AddScript(newlocation);
+				}
+				catch(Exception e)
+				{
+                    Console.WriteLine("Failed to add " + info.FullName ); //Display any exceptions
+					Console.WriteLine(e);
+				}
+			
+				
+				
+			}
 			
 		}
 	}
@@ -217,6 +232,45 @@ namespace WebFixServer
 			 p.StandardInput.WriteLine(input);
 			 return p.StandardOutput.ReadToEnd();
 		}
+		
+		
+	}
+	public class IronPythonScript : Script
+	{
+		ObjectHandle filter;
+		ObjectOperations operations;
+		public override void Load (FileInfo info)
+		{
+			CompiledCode script;
+			ScriptScope scope;
+			ScriptEngine engine = Python.CreateEngine(AppDomain.CreateDomain("Script Sandbox"));
+			scope = engine.CreateScope();
+			ScriptSource source = engine.CreateScriptSourceFromFile(info.FullName);
+			script = source.Compile();
+			script.Execute(scope);
+			if(scope.TryGetVariableHandle("Filter",out filter))
+			{
+				operations = engine.CreateOperations();
+				
+			}
+			else
+			{
+				throw new InvalidDataException("Could not find Filter method");
+				
+				
+			}
+			
+			
+			
+		}
+		public override string Run (string input)
+		{
+		
+			
+			object result = ((ObjectHandle)operations.Invoke(filter,input)).Unwrap();
+			return (string)result;
+		}
+		
 		
 		
 	}
