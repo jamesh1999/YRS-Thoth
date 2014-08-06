@@ -154,6 +154,8 @@ namespace WebFixServer
         //Prepare a script at "location" for usage
 		void AddScript(string location)
 		{
+			if(Environment.OSVersion.Platform == System.PlatformID.Unix)
+						location = location.Replace("\\","/");
 			FileInfo info = new FileInfo(location);
 			
 			if(info.Extension == ".py")
@@ -176,8 +178,7 @@ namespace WebFixServer
 				{
 					string newlocation = File.ReadAllText(info.FullName); //Read .py location from .script
 					location = location.Replace("\n",""); //Remove newline character
-					if(Environment.OSVersion.Platform == System.PlatformID.Unix)
-						newlocation = newlocation.Replace("\\","/");
+					
 						
                     if (!File.Exists(location))
                     {
@@ -193,6 +194,16 @@ namespace WebFixServer
 				}
 			
 				
+				
+			}
+			if(info.Extension == ".redirect")//If a file in "Filters" ends in .script add the location in the file as a script
+			{
+				
+				ScriptEngine engine = Python.CreateEngine();
+				var scope = engine.CreateScope();
+				engine.CreateScriptSourceFromFile(info.FullName).Execute(scope);
+				string redirect = engine.CreateOperations().Invoke(scope.GetVariable("Redirect"));
+				AddScript(redirect);
 				
 			}
 			
@@ -232,6 +243,7 @@ namespace WebFixServer
 			 p.StandardInput.WriteLine(input);
 			 return p.StandardOutput.ReadToEnd();
 		}
+		
 		
 		
 	}
