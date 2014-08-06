@@ -280,8 +280,6 @@ namespace WebFixServer
 
         public override string Run(string input)
         {
-
-
             object result = ((ObjectHandle)operations.Invoke(filter, input)).Unwrap();
             return (string)result;
         }
