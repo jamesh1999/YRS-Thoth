@@ -41,6 +41,13 @@
       <HintPath>bin\Debug\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="IronPython">
+      <HintPath>..\..\..\..\Downloads\IronPython-2.7.4\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\..\..\..\Downloads\IronPython-2.7.4\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
