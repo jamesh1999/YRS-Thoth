@@ -172,6 +172,14 @@ namespace WebFixServer
 				scripts.Add(ipy);
 				
 			}
+			if(info.Extension == ".exe")
+			{
+				NativeScript exe = new NativeScript();
+				exe.Load(info);
+				scripts.Add(exe);
+				
+				
+			}
 			if(info.Extension == ".script")//If a file in "Filters" ends in .script add the location in the file as a script
 			{
 				try
@@ -206,6 +214,7 @@ namespace WebFixServer
 				AddScript(redirect);
 				
 			}
+
 			
 		}
 	}
@@ -232,7 +241,7 @@ namespace WebFixServer
 				info = new ProcessStartInfo("python.exe",fileinfo.Name);
 			}
 			info.WorkingDirectory = fileinfo.DirectoryName;
-			info.RedirectStandardInput = true; //Redirect stdio for Python/C# communitcation
+			info.RedirectStandardInput = true; //Redirect stdio for Python/C# communication
 			info.RedirectStandardOutput = true; //"
 			info.UseShellExecute = false; 
 		}
@@ -281,6 +290,28 @@ namespace WebFixServer
 			
 			object result = ((ObjectHandle)operations.Invoke(filter,input)).Unwrap();
 			return (string)result;
+		}
+		
+		
+		
+	}
+	public class NativeScript : Script
+	{
+		ProcessStartInfo info;
+		
+		public override void Load (FileInfo fileinfo)
+		{
+			info = new ProcessStartInfo(fileinfo.FullName);
+			info.WorkingDirectory = fileinfo.DirectoryName;
+			info.RedirectStandardInput = true; //Redirect stdio for Program/C# communication
+			info.RedirectStandardOutput = true; //"
+			info.UseShellExecute = false; 
+		}
+		public override string Run (string input)
+		{
+			Process p =  Process.Start(info); //Run each script and allow it to alter text
+			p.StandardInput.WriteLine(input);
+			return p.StandardOutput.ReadToEnd();
 		}
 		
 		
