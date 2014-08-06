@@ -1,8 +1,3 @@
-#IMPORTS
-#import sys
-
-
-
 #Removes any repetative ?s,!s and .s
 def Filter(text):
 	start=0
@@ -21,19 +16,3 @@ def Filter(text):
 			text=text[:start+1]+text[count:]
 
 	return text
-
-
-
-# #--------MAIN--------#
-
-# #Handle any unexpected exceptions
-# try:
-
-# 	line = sys.stdin.readline()
-# 	sys.stdout.write(Filter(line))
-# 	#print("")  #<-- Uncomment to view output
-
-# except:
-
-# 	print("\nUnexpected error:\n",sys.exc_info()[0],"\n")
-# 	raise
