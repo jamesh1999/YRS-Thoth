@@ -89,7 +89,7 @@ namespace WebFixServer
             foreach (HtmlAgilityPack.HtmlTextNode node in doc.DocumentNode.SelectNodes("//text()[normalize-space(.) != '']"))
             {
 
-                if (node.ParentNode.Name != "script" && node.Text.Trim().Length > 17)
+                if (node.ParentNode.Name != "script" && node.Text.Trim().Length > 15)
                 {
                     if (threads.Count < MaxThreads)
                     {
@@ -199,11 +199,11 @@ namespace WebFixServer
             if (info.Extension == ".redirect")//If a file in "Filters" ends in .script add the location in the file as a script
             {
 
-                ScriptEngine engine = Python.CreateEngine();
-                var scope = engine.CreateScope();
-                engine.CreateScriptSourceFromFile(info.FullName).Execute(scope);
-                string redirect = engine.CreateOperations().Invoke(scope.GetVariable("Redirect"));
-                AddScript(redirect);
+                //ScriptEngine engine = Python.CreateEngine();
+                //var scope = engine.CreateScope();
+                //engine.CreateScriptSourceFromFile(info.FullName).Execute(scope);
+                //string redirect = engine.CreateOperations().Invoke(scope.GetVariable("Redirect"));
+                //AddScript(redirect);
 
             }
 
