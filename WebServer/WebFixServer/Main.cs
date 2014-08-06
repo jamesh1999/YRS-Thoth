@@ -12,7 +12,7 @@ using IronPython.Hosting;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Runtime.Remoting;
-
+using GlynnTucker.Cache;
 namespace WebFixServer
 {
 
@@ -21,6 +21,7 @@ namespace WebFixServer
 		
 		public static void Main (string[] args)
 		{
+			
 			
 			Filter filter = new Filter();
 			FleckLog.Level = LogLevel.Debug; //Set websockets to print debugging messages
@@ -57,6 +58,8 @@ namespace WebFixServer
 		
 		public Filter()
 		{
+			Cache.AddContext("Nodes");
+			Cache.AddContext("Website");
 			
             //Iterate through all files in ./Filters/
 			foreach(string file in Directory.GetFiles("Filters"))
@@ -81,6 +84,14 @@ namespace WebFixServer
         //Separates plaintext from html and runs it through filters before adding it back in
 		public string Run(string text)
 		{
+			object output;
+			if(Cache.TryGet("Website",text,out output))
+			{
+				return (string)output;	
+				
+			}
+			   
+			            
 			
 			
 			var doc = new HtmlAgilityPack.HtmlDocument();
@@ -128,17 +139,26 @@ namespace WebFixServer
 				
 			}
 			
+			Cache.AddOrUpdate("Website",text,doc.DocumentNode.InnerHtml);
+			
 			return doc.DocumentNode.InnerHtml;
 		}
 		public void Filtered(HtmlTextNode node )
 		{
 			string original = node.Text;
+			object output = node.Text;
+			if(Cache.TryGet("Nodes",node.Text,out output))
+			{
+				node.Text = (string)output;
+				return;
+				
+			}
 			
 			foreach(Script script in scripts)
 			{
 				try
 				{	
-					node.Text = script.Run(node.Text);
+					node.Text = script.CacheRun(node.Text);
 
 				}
 				catch(Exception e)
@@ -148,6 +168,7 @@ namespace WebFixServer
 				
 			}
 			Console.WriteLine(original + " >> " + node.Text);
+			Cache.AddOrUpdate("Nodes",original,node.Text);
 		}
 
 
@@ -220,9 +241,29 @@ namespace WebFixServer
 	}
 	public abstract class Script
 	{
+		string unique_cache_id ;
+		public Script()
+		{
+			unique_cache_id = Path.GetRandomFileName();
+			Cache.AddContext(unique_cache_id);
+		}
+		
 		public abstract string Run(string input);
 		public abstract void Load(FileInfo info);
-		
+		public string CacheRun(string input)
+		{
+			object result;
+			if(!Cache.TryGet(unique_cache_id,input,out result))
+			{
+				result = Run(input);
+				Cache.AddOrUpdate(unique_cache_id,input,result);
+				
+				
+			}
+			return (string)result;
+			
+			
+		}
 		
 		
 		
@@ -288,7 +329,7 @@ namespace WebFixServer
 		{
 		
 			
-			object result = ((ObjectHandle)operations.Invoke(filter,input)).Unwrap();
+			object result = ((ObjectHandle)operations.Invoke(filter,input.Clone())).Unwrap();
 			return (string)result;
 		}
 		
