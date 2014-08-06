@@ -7,8 +7,11 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using HtmlAgilityPack;
-
-
+using IronPython.Compiler;
+using IronPython.Hosting;
+using Microsoft.Scripting;
+using Microsoft.Scripting.Hosting;
+using System.Runtime.Remoting;
 
 namespace WebFixServer
 {
@@ -24,6 +27,8 @@ namespace WebFixServer
 			
             var server = new WebSocketServer("ws://127.0.0.1:8181");  //Initialise websocket server on localhost
            
+			
+			
             //Start server
 			server.Start(socket =>
                 {
@@ -47,8 +52,8 @@ namespace WebFixServer
 
 	class Filter
 	{
-		List<ProcessStartInfo> scripts = new List<ProcessStartInfo>(); //List containing all loaded scripts
-		
+		List<Script> scripts = new List<Script>(); //List containing all loaded scripts
+		const int MaxThreads = 100;
 		
 		public Filter()
 		{
@@ -57,8 +62,7 @@ namespace WebFixServer
 			foreach(string file in Directory.GetFiles("Filters"))
 			{						
 						
-				if (file.EndsWith(".py")) //If a file in "Filters" ends in .py add it as a script
-				{
+				
 					try
 					{
 						AddScript(file);
@@ -68,6 +72,7 @@ namespace WebFixServer
 					    Console.WriteLine("Failed to add "+ file); //Display any exceptions
 					    Console.WriteLine(e);
 					}
+
 				}else if (file.EndsWith(".script")) //If a file in "Filters" ends in .script add the location in the file as a script
 				{
 					try
@@ -91,6 +96,7 @@ namespace WebFixServer
 						Console.WriteLine(e);
 					}
 				}
+
 			}
 		}
 
@@ -108,21 +114,42 @@ namespace WebFixServer
 
 				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>15)
 				{
-					
-					Thread t = new Thread(new ThreadStart(() => { Filtered(node); }));
-	                            t.Start();
-	                            threads.Add(t);
-					
+					if(threads.Count<MaxThreads)
+					{
+					Thread t = null;
+				    t = new Thread(new ThreadStart(() => { Filtered(node);threads.Remove(t); }));
+	                t.Start();
+	                threads.Add(t);
+					}
+					else
+					{
+						Filtered(node);
+						
+						
+					}
 				}
     		}
-			            //Rejoin threads with main threads when they are finished
-            foreach (Thread t in threads)
-            {
-                if (t.IsAlive)
-                {
-                    t.Join();
-                }
-            }
+			            //Rejoin threads with threads when they are finished
+            while(threads.Count>0)
+			{
+				try
+				{
+					if(threads[0].IsAlive)
+						threads[0].Join();
+					else
+						threads.Remove(threads[0]);
+					
+					
+				}
+				catch(Exception)
+				{
+					
+					
+				}
+				
+				
+				
+			}
 			
 			return doc.DocumentNode.InnerHtml;
 		}
@@ -130,13 +157,12 @@ namespace WebFixServer
 		{
 			string original = node.Text;
 			
-			foreach(ProcessStartInfo script in scripts)
+			foreach(Script script in scripts)
 			{
 				try
-				{
-				    Process p =  Process.Start(script); //Run each script and allow it to alter text
-				    p.StandardInput.WriteLine(node.Text);
-				    node.Text = p.StandardOutput.ReadToEnd();
+				{	
+					node.Text = script.Run(node.Text);
+
 				}
 				catch(Exception e)
 				{
@@ -151,8 +177,65 @@ namespace WebFixServer
         //Prepare a script at "location" for usage
 		void AddScript(string location)
 		{
-			FileInfo fileinfo = new FileInfo(location); 
-			ProcessStartInfo info ;
+			FileInfo info = new FileInfo(location);
+			
+			if(info.Extension == ".py")
+			{
+				PythonScript py = new PythonScript();
+				py.Load(info);
+				scripts.Add(py);
+				
+			}
+			if(info.Extension == ".ipy")
+			{
+				IronPythonScript ipy = new IronPythonScript();
+				ipy.Load(info);
+				scripts.Add(ipy);
+				
+			}
+			if(info.Extension == ".script")//If a file in "Filters" ends in .script add the location in the file as a script
+			{
+				try
+				{
+					string newlocation = File.ReadAllText(info.FullName); //Read .py location from .script
+					location = location.Replace("\n",""); //Remove newline character
+					if(Environment.OSVersion.Platform == System.PlatformID.Unix)
+						newlocation = newlocation.Replace("\\","/");
+						
+                    if (!File.Exists(location))
+                    {
+                        throw new FileNotFoundException("Could not find :" + newlocation);
+                    }
+
+					AddScript(newlocation);
+				}
+				catch(Exception e)
+				{
+                    Console.WriteLine("Failed to add " + info.FullName ); //Display any exceptions
+					Console.WriteLine(e);
+				}
+			
+				
+				
+			}
+			
+		}
+	}
+	public abstract class Script
+	{
+		public abstract string Run(string input);
+		public abstract void Load(FileInfo info);
+		
+		
+		
+		
+	}
+	public class PythonScript : Script
+	{
+		ProcessStartInfo info;
+		
+		public override void Load (FileInfo fileinfo)
+		{
 			if(Environment.OSVersion.Platform == PlatformID.Unix)
 				
 				info = new ProcessStartInfo("python3.3",fileinfo.Name);
@@ -163,9 +246,56 @@ namespace WebFixServer
 			info.WorkingDirectory = fileinfo.DirectoryName;
 			info.RedirectStandardInput = true; //Redirect stdio for Python/C# communitcation
 			info.RedirectStandardOutput = true; //"
-			info.UseShellExecute = false;
-			scripts.Add (info); //Add information to start script process in its directory
+			info.UseShellExecute = false; 
 		}
+		
+		public override string Run (string input)
+		{
+			 Process p =  Process.Start(info); //Run each script and allow it to alter text
+			 p.StandardInput.WriteLine(input);
+			 return p.StandardOutput.ReadToEnd();
+		}
+		
+		
+	}
+	public class IronPythonScript : Script
+	{
+		ObjectHandle filter;
+		ObjectOperations operations;
+		public override void Load (FileInfo info)
+		{
+			CompiledCode script;
+			ScriptScope scope;
+			ScriptEngine engine = Python.CreateEngine(AppDomain.CreateDomain("Script Sandbox"));
+			scope = engine.CreateScope();
+			ScriptSource source = engine.CreateScriptSourceFromFile(info.FullName);
+			script = source.Compile();
+			script.Execute(scope);
+			if(scope.TryGetVariableHandle("Filter",out filter))
+			{
+				operations = engine.CreateOperations();
+				
+			}
+			else
+			{
+				throw new InvalidDataException("Could not find Filter method");
+				
+				
+			}
+			
+			
+			
+		}
+		public override string Run (string input)
+		{
+		
+			
+			object result = ((ObjectHandle)operations.Invoke(filter,input)).Unwrap();
+			return (string)result;
+		}
+		
+		
+		
 	}
 
 
