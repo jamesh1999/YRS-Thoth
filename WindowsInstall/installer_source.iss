@@ -10,7 +10,6 @@ Source: "..\Client\*"; DestDir: "{app}\Client"
 Source: "..\WebServer\WebFixServer\bin\Release\*"; DestDir: "{app}\Server"
 Source: "..\WebServer\WebFixServer\bin\Release\Filters\*"; DestDir: "{app}\Server\Filters"
 Source: "..\WebServer\WebFixServer\bin\Release\Filters\Standard\*"; DestDir: "{app}\Server\Filters\Standard"
-Source: "..\WebServer\WebFixServer\bin\Release\Filters\Standard\CensusNames\*"; DestDir: "{app}\Server\Filters\Standard\CensusNames"
 Source: "..\WindowsInstall\icon.ico"; DestDir: "{app}"
 Source: "..\WindowsInstall\start.bat"; DestDir: "{app}"
 
