@@ -1,14 +1,16 @@
 #Removes #s
 def Filter(text):
-	try:
-		words = text.split(' ')
+	words = text.split(' ')
 
-		new = []
-		for word in words:
+	new = []
+	for word in words:
+
+		try:
 			if not word[0]=="#":
 				new.append(word)
+		except:
+			new.append(word)
 
-		new_text = ' '.join(new)
-		return new_text
-	except:
-		return text
+	new_text = ' '.join(new)
+
+	return new_text
