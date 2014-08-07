@@ -20,8 +20,7 @@ ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 
 def init():
   global spellcheck_NWORDS   #Makes the dict accessible by other functions
-  model_file = open("spell_check_model.json").read()   #Gets data from a model file
-  spellcheck_NWORDS = json.loads(model_file)           
+  spellcheck_NWORDS = json.load(open("spell_check_model.json"))   #Gets data from a model file        
 
 
 #Returns the set of all words of an edit distance of 1 away from "word"

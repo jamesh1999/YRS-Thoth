@@ -13,5 +13,7 @@ def Filter(text):
 
 		elif erase: #Erase selected punctuation except for the first one
 			erase=False
-			text=text[:start+1]+text[count:]
+
+			if not text[start:count]=="...": #Ignore ellipses
+				text=text[:start+1]+text[count:]
 	return text

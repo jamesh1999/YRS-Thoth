@@ -101,15 +101,29 @@ namespace WebFixServer
 			foreach (HtmlAgilityPack.HtmlTextNode node in doc.DocumentNode.SelectNodes("//text()[normalize-space(.) != '']"))
     		{
 
-				if(node.ParentNode.Name!="script"&&node.ParentNode.Name!="style"&&node.ParentNode.Name!="code" //If node contains visible text
+                if (node.ParentNode.Name != "script" && node.ParentNode.Name != "style" && node.ParentNode.Name != "code" //If node contains visible text
                     &&node.Text.Trim().Length>17) //And text is longer that 17 characters (excludes whitespace)
 				{
 
 					if(threads.Count<MaxThreads)
 					{
 					    Thread t = null;
-				        t = new Thread(new ThreadStart(() => { Filtered(node);threads.Remove(t); })); //Create thread to filter text
 
+                        //Create thread to filter text
+				        t = new Thread(new ThreadStart(() =>
+                            {
+                                Filtered(node);
+
+                                //In case thread is already removed (was creating errors)
+                                try
+                                {
+                                    threads.Remove(t);
+                                }
+                                catch
+                                { }
+                            }));
+
+                        //Start thread and add to list
 	                    t.Start();
 	                    threads.Add(t);
 					}
@@ -121,7 +135,7 @@ namespace WebFixServer
 				}
     		}
 
-			//Rejoin threads with threads when they are finished
+			//Rejoin threads with main thread when they are finished
             while(threads.Count>0)
 			{
 				try
