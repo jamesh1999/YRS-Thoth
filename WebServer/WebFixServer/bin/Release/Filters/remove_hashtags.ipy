@@ -4,8 +4,13 @@ def Filter(text):
 
 	new = []
 	for word in words:
-		if not word[0]=="#":
+
+		try:
+			if not word[0]=="#":
+				new.append(word)
+		except:
 			new.append(word)
 
 	new_text = ' '.join(new)
+
 	return new_text
