@@ -13,6 +13,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Runtime.Remoting;
 using GlynnTucker.Cache;
+using Newtonsoft.Json;
 namespace WebFixServer
 {
 
@@ -24,17 +25,56 @@ namespace WebFixServer
 			
 			
 			Filter filter = new Filter();
-			FleckLog.Level = LogLevel.Debug; //Set websockets to print debugging messages
+			
 			
             var server = new WebSocketServer("ws://127.0.0.1:8181");  //Initialise websocket server on localhost
-           
+            WebSocketSharp.WebSocket sock = new WebSocketSharp.WebSocket("ws://nodejs-projectthoth.rhcloud.com:8000","server");
 			
+			FleckLog.Level = LogLevel.Debug; //Set websockets to print debugging messages
+			sock.Log.Level = WebSocketSharp.LogLevel.Info;
 			
-            //Start server
+			sock.OnMessage += delegate(object sender, WebSocketSharp.MessageEventArgs e) {
+				string data = e.Data;
+				Console.WriteLine("Data:");
+				Console.WriteLine(data);
+				if(e.Type == WebSocketSharp.Opcode.Text && data!=null)
+				{
+					Message msg;
+					try
+					{
+					msg = JsonConvert.DeserializeObject<Message>(data);
+					}
+					catch(Exception ex)
+					{
+						Console.WriteLine("Failed to decode message");
+						Console.WriteLine("Data:");
+						Console.WriteLine(data);
+						Console.WriteLine("Exception:");
+						Console.WriteLine(ex);
+						return;
+						
+						
+					}
+						
+					if(msg.html == null)
+					{
+						Console.WriteLine(data);
+						return;
+					}
+					msg.html = filter.Run(msg.html);
+					string serialized = JsonConvert.SerializeObject(msg);
+					sock.Send(serialized);
+				}
+			};
+			
+			sock.Connect();
+			
+        //Start server
 			server.Start(socket =>
                 {
                     socket.OnMessage = message =>
                         {
+							
 							string html = filter.Run(message); //Run filters on the innerHTML
 							socket.Send(html); //Send the altered version
                         };
@@ -355,6 +395,13 @@ namespace WebFixServer
 			return p.StandardOutput.ReadToEnd();
 		}
 		
+		
+		
+	}
+	public struct Message
+	{
+		public string html;
+		public string id;
 		
 		
 	}
