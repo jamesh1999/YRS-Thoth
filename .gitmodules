@@ -1,0 +1,3 @@
+[submodule "nodejs"]
+	path = nodejs
+	url = ssh://53e3fb904382ec153f000549@nodejs-projectthoth.rhcloud.com/~/git/nodejs.git/
