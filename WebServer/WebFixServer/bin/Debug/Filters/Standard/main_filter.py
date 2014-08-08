@@ -1,10 +1,8 @@
 #IMPORTS
-import os.path,sqlite3,sys
+import sqlite3,sys
 import spellcheck
 
 
-
-CUR_DIR = os.path.dirname(__file__) #Directory of the python filter
 
 CONN = sqlite3.connect('dictionary.db')
 CURSOR = CONN.cursor() #Data from SCOWL http://wordlist.aspell.net/
@@ -39,27 +37,6 @@ def removePunctuation(word_old):
 
 	except IndexError: #Error raised if the word contains no letters
 		return ""
-
-
-#Uses USA census data to determine if unknown words are names
-#TODO: Merge with main database to speed up
-def nameSearch(words):
-
-	for count,word in enumerate(words):
-		if word[0]==2:
-
-			word = removePunctuation(word)
-
-			file_location = os.path.join(CURSOR_DIR, "CensusNames/"+word[1][0]+".txt") #Open data from: https://www.drupal.org/project/namedb
-
-			with open(file_location) as names:
-
-				for line in names.readlines():
-
-					if line.lower()[:-1]==word[1]:
-						words[count][0] = 1
-						break;
-
 
 #Capitalises words at start of sentence
 #TODO: different cases involving speech
@@ -180,7 +157,6 @@ def webFilter(text):
 	#Call individual searches for the words
 	localDictSearch(words)
 	punctuationSearch(words)
-	#nameSearch(words) All names from census data are covered by SCOWL
 
 	#Merge list and capitalise words
 	new=""

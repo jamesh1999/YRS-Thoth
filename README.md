@@ -6,13 +6,19 @@ Install
 =========
   Currently the installation is rather complicated as the web server needs to be run locally at the moment. In the future, this may change. For now, here is a step by step guide to installing Project Thoth
 
+
+Linux:
   1. Download and extract the zip folder
-  2. Download and install python 3.4.1
-  3. From the directory where Python is installed copy python.exe
-  4. Paste python.exe into YRS-Thoth/WebServer/bin/Release/
-  5. Open YRS-Thoth/Client/install.html in firefox and click 'Install Extension'
-  6. Follow on-screen instructions
-  7. Now use Thoth
+  2. Download and install python 3.3
+  3. Open YRS-Thoth/Client/install.html in firefox and click 'Install Extension'
+  4. Now use Thoth from extracted zip folder
+
+ 
+Windows:
+  1. Set Firefox as your default browser
+  2. Run setup.exe in YRS-Thoth/WindowsInstall
+  3. Check install add-on at the end of the installation
+  4. Use Thoth from the icons created
 
 Usage
 =========

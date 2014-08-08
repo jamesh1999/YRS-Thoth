@@ -190,6 +190,8 @@ namespace WebFixServer
 		{
 			string original = node.Text;
 			object output = node.Text;
+
+            //Return data if in cache
 			if(Cache.TryGet("Nodes",node.Text,out output))
 			{
 				node.Text = (string)output;
@@ -197,6 +199,7 @@ namespace WebFixServer
 				
 			}
 			
+            //Run each script
 			foreach(Script script in scripts)
 			{
 				try
@@ -210,6 +213,7 @@ namespace WebFixServer
 				}
 				
 			}
+
 			Console.WriteLine(original + " >> " + node.Text);
 			Cache.AddOrUpdate("Nodes",original,node.Text);
 		}
@@ -220,6 +224,7 @@ namespace WebFixServer
 		{
 			if(Environment.OSVersion.Platform == System.PlatformID.Unix)
 						location = location.Replace("\\","/");
+
 			FileInfo info = new FileInfo(location);
 			
 			if(info.Extension == ".py")
@@ -229,22 +234,22 @@ namespace WebFixServer
 				scripts.Add(py);
 				
 			}
+
 			if(info.Extension == ".ipy")
 			{
 				IronPythonScript ipy = new IronPythonScript();
 				ipy.Load(info);
 				scripts.Add(ipy);
-				
 			}
+
 			if(info.Extension == ".exe")
 			{
 				NativeScript exe = new NativeScript();
 				exe.Load(info);
 				scripts.Add(exe);
-				
-				
 			}
-			if(info.Extension == ".script")//If a file in "Filters" ends in .script add the location in the file as a script
+
+            if (info.Extension == ".redirect")//If a file in "Filters" ends in .redirect add the location in the file as a script
 			{
 				try
 				{
@@ -268,7 +273,8 @@ namespace WebFixServer
 				
 				
 			}
-			if(info.Extension == ".redirect")//If a file in "Filters" ends in .script add the location in the file as a script
+
+			if(info.Extension == ".script")
 			{
 				
 				ScriptEngine engine = Python.CreateEngine();
@@ -282,6 +288,7 @@ namespace WebFixServer
 			
 		}
 	}
+
 	public abstract class Script
 	{
 		string unique_cache_id ;
@@ -292,7 +299,9 @@ namespace WebFixServer
 		}
 		
 		public abstract string Run(string input);
+
 		public abstract void Load(FileInfo info);
+
 		public string CacheRun(string input)
 		{
 			object result;
@@ -311,6 +320,7 @@ namespace WebFixServer
 		
 		
 	}
+
 	public class PythonScript : Script
 	{
 		ProcessStartInfo info;
@@ -336,10 +346,9 @@ namespace WebFixServer
 			 p.StandardInput.WriteLine(input);
 			 return p.StandardOutput.ReadToEnd();
 		}
-		
-		
-		
+				
 	}
+
 	public class IronPythonScript : Script
 	{
 		ObjectHandle filter;
@@ -356,29 +365,22 @@ namespace WebFixServer
 			if(scope.TryGetVariableHandle("Filter",out filter))
 			{
 				operations = engine.CreateOperations();
-				
 			}
 			else
 			{
 				throw new InvalidDataException("Could not find Filter method");
-				
-				
+					
 			}
-			
-			
-			
 		}
+
 		public override string Run (string input)
 		{
-		
-			
 			object result = ((ObjectHandle)operations.Invoke(filter,input.Clone())).Unwrap();
 			return (string)result;
 		}
-		
-		
-		
 	}
+
+
 	public class NativeScript : Script
 	{
 		ProcessStartInfo info;
@@ -391,6 +393,7 @@ namespace WebFixServer
 			info.RedirectStandardOutput = true; //"
 			info.UseShellExecute = false; 
 		}
+
 		public override string Run (string input)
 		{
 			Process p =  Process.Start(info); //Run each script and allow it to alter text

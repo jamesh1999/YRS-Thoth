@@ -1,0 +1,2 @@
+python train_spellchecker.py
+pause
