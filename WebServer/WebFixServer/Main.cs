@@ -66,6 +66,9 @@ namespace WebFixServer
 					sock.Send(serialized);
 				}
 			};
+			sock.OnOpen+= delegate {
+				Console.WriteLine("Connected to global server");
+			};
 			
 			sock.Connect();
 			
