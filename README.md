@@ -26,4 +26,4 @@ Usage
 
 Disclaimer
 =========
-Project Thoth sends all http websites over the internet to its webserver. We therefore take **no** responsibility for intercepted traffic, misrepresented webpages or happy employees at the NSA.
+Project Thoth sends all http websites over the internet to its webserver and then on to *whoever* happens to be running the server application. We therefore take **no** responsibility for intercepted traffic, misrepresented webpages or happy employees at the NSA.
