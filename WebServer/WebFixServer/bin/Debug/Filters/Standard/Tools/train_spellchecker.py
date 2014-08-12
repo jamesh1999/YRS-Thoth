@@ -15,6 +15,7 @@ def train(features): #generates probability data from a large text sample
     return model #model[f] contains a count of how many times the word f has been seen
 
 NWORDS = train(words(open('big.txt').read())) #big.txt contains a large number of works from project gutenburg, war and peace, wiktionary and other sources (~1.5 million words)
+new = collections.OrderedDict(sorted(NWORDS.items()))
 spell_check_model = open("spell_check_model.json","w")
-spell_check_model.write(json.dumps(NWORDS))
+spell_check_model.write(json.dumps(new))
 spell_check_model.close()
