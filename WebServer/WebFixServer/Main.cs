@@ -2,18 +2,17 @@
 using System;
 using Fleck;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using HtmlAgilityPack;
 using IronPython.Compiler;
 using IronPython.Hosting;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Runtime.Remoting;
 using GlynnTucker.Cache;
 using Newtonsoft.Json;
+
 namespace WebFixServer
 {
 
@@ -28,11 +27,12 @@ namespace WebFixServer
 			
 			
             var server = new WebSocketServer("ws://127.0.0.1:8181");  //Initialise websocket server on localhost
-            WebSocketSharp.WebSocket sock = new WebSocketSharp.WebSocket("ws://nodejs-projectthoth.rhcloud.com:8000","server");
+            WebSocketSharp.WebSocket sock = new WebSocketSharp.WebSocket("ws://nodejs-projectthoth.rhcloud.com:8000","server"); //Initialise global websocket
 			
 			FleckLog.Level = LogLevel.Debug; //Set websockets to print debugging messages
 			sock.Log.Level = WebSocketSharp.LogLevel.Info;
 			
+            //Handle global data
 			sock.OnMessage += delegate(object sender, WebSocketSharp.MessageEventArgs e) {
 				string data = e.Data;
 				Console.WriteLine("Data:");
@@ -42,7 +42,7 @@ namespace WebFixServer
 					Message msg;
 					try
 					{
-					msg = JsonConvert.DeserializeObject<Message>(data);
+					    msg = JsonConvert.DeserializeObject<Message>(data);
 					}
 					catch(Exception ex)
 					{
@@ -66,18 +66,17 @@ namespace WebFixServer
 					sock.Send(serialized);
 				}
 			};
-			sock.OnOpen+= delegate {
+			sock.OnOpen += delegate {
 				Console.WriteLine("Connected to global server");
 			};
 			
 			sock.Connect();
 			
-        //Start server
+            //Start server
 			server.Start(socket =>
                 {
                     socket.OnMessage = message =>
                         {
-							
 							string html = filter.Run(message); //Run filters on the innerHTML
 							socket.Send(html); //Send the altered version
                         };
@@ -97,7 +96,7 @@ namespace WebFixServer
 	class Filter
 	{
 		List<Script> scripts = new List<Script>(); //List containing all loaded scripts
-		const int MaxThreads = 100;
+		const int MaxThreads = 256;
 		
 		public Filter()
 		{
@@ -127,6 +126,7 @@ namespace WebFixServer
         //Separates plaintext from html and runs it through filters before adding it back in
 		public string Run(string text)
 		{
+            //Search cache
 			object output;
 			if(Cache.TryGet("Website",text,out output))
 			{
@@ -136,57 +136,52 @@ namespace WebFixServer
 			   
 			            
 			
-			
+			//Get HTML
 			var doc = new HtmlAgilityPack.HtmlDocument();
-			List<Thread> threads = new List<Thread>();
 			doc.LoadHtml(text);
+
+            //Threading variables
+            ManualResetEvent syncEvent = new ManualResetEvent(false);
+            int count = 0;
+
+            //Iterates through nodes and starts threads
 			foreach (HtmlAgilityPack.HtmlTextNode node in doc.DocumentNode.SelectNodes("//text()[normalize-space(.) != '']"))
     		{
 
-				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>17)
+				if(node.ParentNode.Name!="script"&&node.Text.Trim().Length>17) //Ignore short strings
 				{
-					if(threads.Count<MaxThreads)
+                    
+					if(count<MaxThreads)
 					{
-					Thread t = null;
-				    t = new Thread(new ThreadStart(() => { Filtered(node);threads.Remove(t); }));
-	                t.Start();
-	                threads.Add(t);
+                        syncEvent.Reset();
+
+                        //Create and start thread
+					    Thread t = null;
+                        t = new Thread(new ThreadStart(() => { Filtered(node); count--; syncEvent.Set(); }));
+	                    t.Start();
+
+                        count++;
 					}
 					else
 					{
-						Filtered(node);
-						
-						
+                        Filtered(node); //Do work in main thread
 					}
 				}
     		}
-			            //Rejoin threads with threads when they are finished
-            while(threads.Count>0)
+			
+            //Wait for any threads to finish
+            while(count>0)
 			{
-				try
-				{
-					if(threads[0].IsAlive)
-						threads[0].Join();
-					else
-						threads.Remove(threads[0]);
-					
-					
-				}
-				catch(Exception)
-				{
-					
-					
-				}
-				
-				
-				
+                syncEvent.WaitOne();
 			}
 			
+            //Save modified HTML to cache
 			Cache.AddOrUpdate("Website",text,doc.DocumentNode.InnerHtml);
 			
 			return doc.DocumentNode.InnerHtml;
 		}
-		public void Filtered(HtmlTextNode node )
+
+		public void Filtered(HtmlTextNode node)
 		{
 			string original = node.Text;
 			object output = node.Text;
@@ -196,7 +191,6 @@ namespace WebFixServer
 			{
 				node.Text = (string)output;
 				return;
-				
 			}
 			
             //Run each script
@@ -298,23 +292,22 @@ namespace WebFixServer
 			Cache.AddContext(unique_cache_id);
 		}
 		
-		public abstract string Run(string input);
+		public abstract string Run(string input); //Run filter
 
-		public abstract void Load(FileInfo info);
+		public abstract void Load(FileInfo info); //Load filter
 
-		public string CacheRun(string input)
+		public string CacheRun(string input) //Call Run() and update cache
 		{
-			object result;
-			if(!Cache.TryGet(unique_cache_id,input,out result))
-			{
-				result = Run(input);
-				Cache.AddOrUpdate(unique_cache_id,input,result);
-				
-				
-			}
-			return (string)result;
-			
-			
+            object result;
+            if (!Cache.TryGet(unique_cache_id, input, out result))
+            {
+                result = Run(input);
+                Cache.AddOrUpdate(unique_cache_id, input, result);
+
+
+            }
+
+            return (string)result;
 		}
 		
 		
@@ -349,27 +342,28 @@ namespace WebFixServer
 				
 	}
 
+    class IronPythonGlobals
+    {
+        public static ScriptEngine engine = Python.CreateEngine(AppDomain.CreateDomain("Script Sandbox")); //Scope and engine for iron python scripts
+        public static ScriptScope scope = engine.CreateScope();
+    }
+
 	public class IronPythonScript : Script
 	{
 		ObjectHandle filter;
 		ObjectOperations operations;
 		public override void Load (FileInfo info)
 		{
-			CompiledCode script;
-			ScriptScope scope;
-			ScriptEngine engine = Python.CreateEngine(AppDomain.CreateDomain("Script Sandbox"));
-			scope = engine.CreateScope();
-			ScriptSource source = engine.CreateScriptSourceFromFile(info.FullName);
-			script = source.Compile();
-			script.Execute(scope);
-			if(scope.TryGetVariableHandle("Filter",out filter))
+            ScriptSource source = IronPythonGlobals.engine.CreateScriptSourceFromFile(info.FullName);
+            CompiledCode script = source.Compile();
+            script.Execute(IronPythonGlobals.scope);
+            if (IronPythonGlobals.scope.TryGetVariableHandle("Filter", out filter))
 			{
-				operations = engine.CreateOperations();
+                operations = IronPythonGlobals.engine.CreateOperations();
 			}
 			else
 			{
 				throw new InvalidDataException("Could not find Filter method");
-					
 			}
 		}
 
