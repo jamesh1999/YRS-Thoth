@@ -342,24 +342,20 @@ namespace WebFixServer
 				
 	}
 
-    class IronPythonGlobals
-    {
-        public static ScriptEngine engine = Python.CreateEngine(AppDomain.CreateDomain("Script Sandbox")); //Scope and engine for iron python scripts
-        public static ScriptScope scope = engine.CreateScope();
-    }
-
 	public class IronPythonScript : Script
 	{
 		ObjectHandle filter;
 		ObjectOperations operations;
 		public override void Load (FileInfo info)
 		{
-            ScriptSource source = IronPythonGlobals.engine.CreateScriptSourceFromFile(info.FullName);
+            ScriptEngine engine = Python.CreateEngine(AppDomain.CreateDomain("Script Sandbox"));
+            ScriptScope scope = engine.CreateScope();
+            ScriptSource source = engine.CreateScriptSourceFromFile(info.FullName);
             CompiledCode script = source.Compile();
-            script.Execute(IronPythonGlobals.scope);
-            if (IronPythonGlobals.scope.TryGetVariableHandle("Filter", out filter))
+            script.Execute(scope);
+            if (scope.TryGetVariableHandle("Filter", out filter))
 			{
-                operations = IronPythonGlobals.engine.CreateOperations();
+                operations = engine.CreateOperations();
 			}
 			else
 			{
