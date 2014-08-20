@@ -10,8 +10,8 @@ Source: "..\Client\*"; DestDir: "{app}\Client"
 Source: "..\WebServer\WebFixServer\bin\Release\*"; DestDir: "{app}\Server"
 Source: "..\WebServer\WebFixServer\bin\Release\Filters\*"; DestDir: "{app}\Server\Filters"
 Source: "..\WebServer\WebFixServer\bin\Release\Filters\Standard\*"; DestDir: "{app}\Server\Filters\Standard"
-Source: "..\WindowsInstall\icon.ico"; DestDir: "{app}"
-Source: "..\WindowsInstall\start.bat"; DestDir: "{app}"
+Source: "..\Install\icon.ico"; DestDir: "{app}"
+Source: "..\Install\start.bat"; DestDir: "{app}"
 
 [Tasks]
 Name: desktopicon; Description: "Create a &desktop icon"
