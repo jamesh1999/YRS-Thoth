@@ -153,7 +153,6 @@ namespace WebFixServer
                     
 					if(count<MaxThreads)
 					{
-                        syncEvent.Reset();
 
                         //Create and start thread
 					    Thread t = null;
@@ -173,6 +172,7 @@ namespace WebFixServer
             while(count>0)
 			{
                 syncEvent.WaitOne();
+                syncEvent.Reset();
 			}
 			
             //Save modified HTML to cache
