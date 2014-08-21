@@ -1,7 +1,6 @@
-E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Debug\WebFixServer.exe
-E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Debug\WebFixServer.pdb
-E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Debug\WebFixServer.csprojResolveAssemblyReference.cache
 E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Debug\WebFixServer.exe
 E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Debug\WebFixServer.pdb
 E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Debug\WebFixServer.exe.CodeAnalysisLog.xml
 E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Debug\WebFixServer.exe.lastcodeanalysissucceeded
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Debug\WebFixServer.exe
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Debug\WebFixServer.pdb

@@ -1,1 +1,14 @@
 C:\Users\James\Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Release\WebFixServer.csprojResolveAssemblyReference.cache
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\WebFixServer.exe
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\Fleck.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\GlynnTucker.Cache.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\HtmlAgilityPack.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\IronPython.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\IronPython.Modules.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\Microsoft.Dynamic.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\Microsoft.Scripting.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\Microsoft.Scripting.Metadata.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\Newtonsoft.Json.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\bin\Release\websocket-sharp.dll
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Release\WebFixServer.csprojResolveAssemblyReference.cache
+E:\My Documents\GitHub\YRS-Thoth\WebServer\WebFixServer\obj\x86\Release\WebFixServer.exe
