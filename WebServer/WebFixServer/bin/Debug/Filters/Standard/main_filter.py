@@ -1,5 +1,5 @@
 #IMPORTS
-import sqlite3,sys
+import sqlite3,sys,re
 import spellcheck
 
 
@@ -11,32 +11,7 @@ CURSOR = CONN.cursor() #Data from SCOWL http://wordlist.aspell.net/
 
 #Removes the punctuation from the start and the end of the word
 def removePunctuation(word_old):
-	try:
-
-		word=list(word_old) #Word_old is a list so a copy must be created to prevent editing the origional
-
-		#Remove preceeding punctuation
-		removed_punctuation=False
-		while not removed_punctuation:
-
-			if not 123>ord(word[1][0])>64: #If first character is not a letter
-				word[1] = word[1][1:]
-			else:
-				removed_punctuation=True
-
-		#Remove trailing punctuation
-		removed_punctuation=False
-		while not removed_punctuation:
-
-			if not 123>ord(word[1][-1])>64: #If last character is not a letter
-				word[1] = word[1][:-1]
-			else:
-				removed_punctuation=True
-
-		return word
-
-	except IndexError: #Error raised if the word contains no letters
-		return ""
+	return [word_old[0],re.sub('(?<![a-zA-Z])[^a-zA-Z](?![a-zA-Z])','',word_old[1])]
 
 #Capitalises words at start of sentence
 #TODO: different cases involving speech
@@ -64,7 +39,7 @@ def localDictSearch(words):
 
 		word = removePunctuation(word_old)
 
-		if word=="": #As this is the first step of the filter we have to check for words with no letters
+		if word[1]=="": #As this is the first step of the filter we have to check for words with no letters
 
 			CURSOR.execute('select data from slang where key=?', (word_old[1],)) #Checks for emoticons
 

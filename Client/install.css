@@ -1,0 +1,15 @@
+a {
+ font-size: 450%;   
+ background: #AAB;
+ border-style: solid;
+ border-color: #777788;
+ border-width: 2px;
+ border-radius: 10px;
+ text-decoration: none;
+ padding: 5px 10px;
+ display: block;
+}
+
+div {
+ box-shadow: 2px 2px 20px #DDD;   
+}
